@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { PlayCircle, ShieldCheck, Zap, Code, Database, Globe, Layers, BarChart } from 'lucide-react';
+import { PlayCircle, ShieldCheck, Zap, Code, Database, Globe, Layers, BarChart, Terminal } from 'lucide-react';
 
 const Home = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!localStorage.getItem('token')) {
+      navigate('/signup');
+    }
+  }, [navigate]);
 
   const CAT_ICONS = {
     'HTML': <Globe className="text-orange-500" />,
@@ -17,6 +23,9 @@ const Home = () => {
     'Data Structures': <BarChart className="text-green-500" />,
     'Data Science': <BarChart className="text-indigo-500" />,
     'React': <Code className="text-cyan-400" />,
+    'SQL': <Database className="text-blue-600" />,
+    'Java': <Code className="text-red-500" />,
+    'C++': <Terminal className="text-blue-800" />,
     'All': <PlayCircle className="text-w3-green" />
   };
 
@@ -43,14 +52,17 @@ const Home = () => {
     <div className="min-h-screen bg-w3-bg dark:bg-[#111] text-w3-dark dark:text-gray-100 font-sans flex flex-col items-center">
       {/* Top Navbar */}
       <nav className="w-full bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 cursor-pointer" onClick={() => navigate('/')}>
           <Globe className="text-w3-green" size={32} />
-          <h1 className="text-2xl font-black tracking-tighter">W3Schools <span className="text-w3-green">QUIZ</span></h1>
+          <h1 className="text-2xl font-black tracking-tighter">CodeMastery <span className="text-w3-green">QUIZ</span></h1>
         </div>
-        <div className="hidden md:flex gap-6 font-bold text-sm">
-          <a href="#" className="hover:text-w3-green">TUTORIALS</a>
-          <a href="#" className="hover:text-w3-green">EXERCISES</a>
-          <a href="#" className="hover:text-w3-green">CERTIFICATES</a>
+        <div className="hidden md:flex gap-6 font-bold text-sm items-center">
+          <button onClick={() => navigate('/tutorials')} className="hover:text-w3-green text-gray-700 dark:text-gray-300">TUTORIALS</button>
+          <button onClick={() => startQuiz('All')} className="hover:text-w3-green text-gray-700 dark:text-gray-300">EXERCISES</button>
+          <button onClick={() => navigate('/certificates')} className="hover:text-w3-green text-gray-700 dark:text-gray-300">CERTIFICATES</button>
+          <button onClick={() => { localStorage.clear(); navigate('/login'); }} className="ml-4 bg-red-500 hover:bg-red-600 font-bold text-white px-6 py-2 rounded-full transition-colors shadow-sm">
+            Logout
+          </button>
         </div>
       </nav>
 
@@ -68,7 +80,10 @@ const Home = () => {
             >
               Start Your First Quiz
             </button>
-            <button className="bg-transparent border-2 border-white hover:bg-white hover:text-w3-dark px-10 py-4 rounded-full font-black text-xl transition-all">
+            <button 
+              onClick={() => navigate('/tutorials')}
+              className="bg-transparent border-2 border-white hover:bg-white hover:text-w3-dark px-10 py-4 rounded-full font-black text-xl transition-all"
+            >
               Try Tutorial &raquo;
             </button>
           </div>
@@ -129,8 +144,8 @@ const Home = () => {
           We offer the best free tutorials for all your favorite programming languages. Check out our detailed guides!
         </p>
         <div className="flex flex-wrap justify-center gap-4">
-           <button className="bg-w3-dark text-white px-10 py-3 rounded-full font-bold hover:bg-black transition-all">Browse Tutorials</button>
-           <button className="bg-white text-w3-dark px-10 py-3 rounded-full font-bold hover:bg-gray-100 transition-all shadow-sm">View Exercises</button>
+           <button onClick={() => navigate('/tutorials')} className="bg-w3-dark text-white px-10 py-3 rounded-full font-bold hover:bg-black transition-all">Browse Tutorials</button>
+           <button onClick={() => startQuiz('All')} className="bg-white text-w3-dark px-10 py-3 rounded-full font-bold hover:bg-gray-100 transition-all shadow-sm">View Exercises</button>
         </div>
       </div>
     </div>

@@ -48,6 +48,28 @@ class QuizResult(BaseModel):
     total: int
     results: List[AnswerResult]
 
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+class UserSignup(BaseModel):
+    username: str
+    password: str
+    role: str  # "provider" or "student"
+
+class NewQuestion(BaseModel):
+    text: str
+    options: List[str]
+    correct_answer: str
+    category: str
+    difficulty: str
+
+# Users database
+USERS = [
+    {"username": "admin", "password": "admin123", "role": "provider"},
+    {"username": "student", "password": "student123", "role": "student"}
+]
+
 # In-memory database
 QUESTIONS = [
     {
@@ -185,6 +207,30 @@ QUESTIONS = [
         "correct_answer": "True",
         "category": "Python",
         "difficulty": "Medium"
+    },
+    {
+        "id": 23,
+        "text": "Which SQL statement is used to extract data from a database?",
+        "options": ["SELECT", "EXTRACT", "GET", "OPEN"],
+        "correct_answer": "SELECT",
+        "category": "SQL",
+        "difficulty": "Easy"
+    },
+    {
+        "id": 24,
+        "text": "What does the 'public static void main(String[] args)' method do in Java?",
+        "options": ["Defines a variable", "Declares an empty class", "Acts as the entry point of the application", "Imports a package"],
+        "correct_answer": "Acts as the entry point of the application",
+        "category": "Java",
+        "difficulty": "Medium"
+    },
+    {
+        "id": 25,
+        "text": "What is a virtual function in C++?",
+        "options": ["A function without a body", "A function defined in a base class that gets overridden in a derived class", "A function that cannot be inherited", "A built-in math function"],
+        "correct_answer": "A function defined in a base class that gets overridden in a derived class",
+        "category": "C++",
+        "difficulty": "Hard"
     }
 ]
 
@@ -250,3 +296,37 @@ def submit_quiz(submission: QuizSubmit):
         total=len(submission.answers),
         results=results
     )
+
+@app.post("/signup")
+def user_signup(user: UserSignup):
+    if any(u["username"] == user.username for u in USERS):
+        raise HTTPException(status_code=400, detail="Username already exists")
+    
+    USERS.append({
+        "username": user.username,
+        "password": user.password,
+        "role": user.role
+    })
+    return {"success": True, "message": "Signup successful"}
+
+@app.post("/login")
+def user_login(creds: UserLogin):
+    user = next((u for u in USERS if u["username"] == creds.username and u["password"] == creds.password), None)
+    if user:
+        return {"success": True, "token": f"{user['username']}-secret", "role": user["role"]}
+    raise HTTPException(status_code=401, detail="Invalid credentials")
+
+@app.post("/admin/questions")
+def add_question(question: NewQuestion):
+    # Generate a new unique ID
+    new_id = max((q["id"] for q in QUESTIONS), default=0) + 1
+    new_q_dict = {
+        "id": new_id,
+        "text": question.text,
+        "options": question.options,
+        "correct_answer": question.correct_answer,
+        "category": question.category,
+        "difficulty": question.difficulty
+    }
+    QUESTIONS.append(new_q_dict)
+    return {"success": True, "message": "Question added successfully!", "question": new_q_dict}
