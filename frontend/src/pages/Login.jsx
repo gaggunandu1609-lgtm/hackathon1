@@ -12,7 +12,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('https://hackathon1-1-rdqt.onrender.com/login', { username, password });
+      const res = await axios.post('/login', { username, password });
       if (res.data.success) {
         localStorage.setItem('token', res.data.token);
         localStorage.setItem('role', res.data.role);

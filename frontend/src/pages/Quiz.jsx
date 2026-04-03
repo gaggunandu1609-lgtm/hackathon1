@@ -19,7 +19,7 @@ const Quiz = () => {
     useEffect(() => {
         const fetchQuestions = async () => {
              try {
-                const response = await axios.get(`https://hackathon1-1-rdqt.onrender.com/questions`, {
+                const response = await axios.get(`/questions`, {
                     params: { category, limit: 10 }
                 });
                 setQuestions(response.data);
@@ -72,7 +72,7 @@ const Quiz = () => {
         };
         
         try {
-            const response = await axios.post('https://hackathon1-1-rdqt.onrender.com/submit', submission);
+            const response = await axios.post('/submit', submission);
             navigate('/result', { state: { result: response.data, questions } });
         } catch (err) {
             console.error('Submit Error:', err);

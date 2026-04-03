@@ -14,7 +14,7 @@ const Signup = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('https://hackathon1-1-rdqt.onrender.com/signup', { username, password, role });
+      const res = await axios.post('/signup', { username, password, role });
       if (res.data.success) {
         setSuccess('Signup successful! Redirecting to login...');
         setError('');

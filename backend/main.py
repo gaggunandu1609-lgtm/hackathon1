@@ -4,6 +4,10 @@ from pydantic import BaseModel
 from typing import List, Optional
 import random
 
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
+
 app = FastAPI(title="Quiz App API")
 
 # Allow CORS for frontend
@@ -15,9 +19,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to the Quiz App API! Use /questions, /categories, or /submit endpoints."}
+# Root path for API health check
+@app.get("/api/health")
+def api_health():
+    return {"message": "API is live"}
+
+# Serve frontend static files
+# Note: This should be at the END of the file to not shadow API routes
+# But we will use a catch-all route at the bottom instead.
 
 # Models
 class QuestionBase(BaseModel):
@@ -330,3 +339,27 @@ def add_question(question: NewQuestion):
     }
     QUESTIONS.append(new_q_dict)
     return {"success": True, "message": "Question added successfully!", "question": new_q_dict}
+
+# --- SERVE FRONTEND ---
+# Path to the frontend build directory
+frontend_path = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
+
+# Mount assets specifically (Vite puts them in dist/assets)
+if os.path.exists(os.path.join(frontend_path, "assets")):
+    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_path, "assets")), name="assets")
+
+# Catch-all route to serve the React index.html for all other paths
+@app.get("/{full_path:path}")
+async def serve_react_app(full_path: str):
+    # Check if the requested file exists in the frontend dist folder
+    file_path = os.path.join(frontend_path, full_path)
+    if os.path.isfile(file_path):
+        return FileResponse(file_path)
+    
+    # Otherwise, return index.html to let React Router handle it
+    index_path = os.path.join(frontend_path, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    
+    return {"message": "Frontend not built. Please build the frontend to see the UI."}
+
