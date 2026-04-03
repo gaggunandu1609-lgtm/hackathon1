@@ -32,7 +32,7 @@ const Home = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/categories');
+        const response = await axios.get('https://hackathon1-1-rdqt.onrender.com/categories');
         setCategories(['All', ...response.data.categories]);
       } catch (err) {
         console.error('Error fetching categories:', err);

@@ -40,7 +40,7 @@ const Admin = () => {
         difficulty: qDiff,
       };
       
-      const res = await axios.post('http://localhost:8000/admin/questions', payload);
+      const res = await axios.post('https://hackathon1-1-rdqt.onrender.com/admin/questions', payload);
       if (res.data.success) {
         setSuccessMsg('Question successfully added to database!');
         setQText('');
